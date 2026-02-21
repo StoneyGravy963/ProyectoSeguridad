@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cifrado Elias – César &amp; Atbash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ── Encabezado ─────────────────────────────────────────────────────────── -->
+  <header class="encabezado">
+    <div class="logo">
+
+      <h1>Cifrado Elias</h1>
+    </div>
+    <p class="subtitulo">Cifrado César &amp; Atbash — basado en ASCII</p>
+  </header>
+
+  <!-- ── Contenido principal ────────────────────────────────────────────────── -->
+  <main>
+    <div class="app-card">
+
+      <!-- ── Selector de cifrado ─────────────────────────────────── -->
+      <!--
+        elege entre Cesar y Atbash
+      -->
+      <div class="tabs" role="tablist" aria-label="Seleccionar tipo de cifrado">
+        <button
+          class="boton-tab active"
+          data-cipher="caesar"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-settings"
+        >
+           César
+        </button>
+        <button
+          class="boton-tab"
+          data-cipher="atbash"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-settings"
+        >
+           Atbash
+        </button>
+      </div>
+
+      <!-- ── Panel ─────────────────────────────────────────── -->
+      <div class="configuracion" id="panel-settings">
+
+        <!-- Desplazamiento -->
+        <!--
+          cuantas posiciones se desplaza cada caracter dentro del charset
+        -->
+        <div class="grupo-turno" id="shift-group">
+          <label for="shift">Desplazamiento</label>
+          <input
+            type="number"
+            id="shift"
+            value="3"
+            min="1"
+            max="9999"
+            aria-label="Valor de desplazamiento para el cifrado César"
+          />
+          <span class="pista">posiciones en el charset</span>
+        </div>
+
+        <!-- Boton para mostrar/ocultar el charset -->
+        <div class="fila">
+          <button class="boton-mostrar" id="toggle-charset">
+            Configurar charset ▼
+          </button>
+        </div>
+
+        <!-- Panel del conjunto de caracteres -->
+        <!--
+          El charset define los caracteres que estan en el cifrado
+          Los caracteres fuera del charset se copian sin modificación al resultado
+          Por defecto cubre todo el rango ASCII
+        -->
+        <div class="caja-charset hidden" id="charset-box">
+          <label for="charset">Conjunto de caracteres (charset)</label>
+          <div class="fila-charset">
+            <input
+              type="text"
+              id="charset"
+              spellcheck="false"
+              autocomplete="off"
+              aria-label="Conjunto de caracteres para el cifrado"
+              placeholder="Ej: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz..."
+            />
+            <button class="boton boton--chico boton--simple" id="reset-charset" title="Restablecer al charset por defecto">
+              ↺ Reset
+            </button>
+          </div>
+          <p class="pista-charset">
+            Solo los caracteres aqui seran cifrados/descifrados
+            Los demas se copian tal cual al resultado
+          </p>
+        </div>
+
+      </div><!-- /configuracion -->
+
+      <!-- ── areas de texto y botones de accion ─────────────────────────────── -->
+      <div class="seccion-io">
+
+        <!-- Texto de entrada -->
+        <div class="panel">
+          <div class="panel-titulo">
+            <span class="etiqueta">Texto de entrada</span>
+            <span class="contador" id="char-count">0 caracteres</span>
+          </div>
+          <textarea
+            id="input-text"
+            placeholder="Escribe o pega el texto aquí..."
+            aria-label="Texto de entrada para cifrar o descifrar"
+          ></textarea>
+          <div class="panel-pie">
+            <button class="boton boton--chico boton--simple" id="clear-input" title="Limpiar entrada y salida">
+              ✕ Limpiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de acciones: cifrar, intercambiar, descifrar -->
+        <!--
+          Cifrar: aplica el algoritmo al texto de entrada
+          Intercambiar: mueve el resultado de vuelta a la entrada
+          Descifrar: revierte el algoritmo para recuperar el original
+        -->
+        <div class="acciones">
+          <button class="boton boton--primario" id="encrypt-btn" title="Cifrar el texto de entrada">
+            ▼ Cifrar
+          </button>
+          <button
+            class="boton boton--cambio"
+            id="swap-btn"
+            title="Intercambiar entrada y salida"
+            aria-label="Intercambiar los textos de entrada y salida"
+          >
+            ⇅
+          </button>
+          <button class="boton boton--secundario" id="decrypt-btn" title="Descifrar el texto de entrada">
+            ▲ Descifrar
+          </button>
+        </div>
+
+        <!-- Texto de salida -->
+        <div class="panel">
+          <div class="panel-titulo">
+            <span class="etiqueta">Resultado</span>
+          </div>
+          <textarea
+            id="output-text"
+            readonly
+            placeholder="El resultado aparecerá aquí..."
+            aria-label="Texto de salida (resultado del cifrado o descifrado)"
+          ></textarea>
+          <div class="panel-pie">
+            <button class="boton boton--chico boton--simple" id="copy-output" title="Copiar resultado al portapapeles">
+              ⧉ Copiar
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /seccion-io -->
+
+      <!-- ── Tabla ASCII ──────────────────────────────────────── -->
+      <div class="seccion-ascii hidden" id="ascii-section">
+        <div class="titulo-ascii">
+          <span class="etiqueta">Tabla de conversión ASCII</span>
+          <span class="meta-ascii" id="ascii-meta"></span>
+        </div>
+        <div class="contenedor-tabla">
+          <table class="tabla-ascii">
+            <thead>
+              <tr>
+                <th>Original</th>
+                <th>Cód. ASCII</th>
+                <th></th>
+                <th>Resultado</th>
+                <th>Cód. ASCII</th>
+              </tr>
+            </thead>
+            <tbody id="ascii-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Indicador del cifrado activo ───────────────────────────────────── -->
+      <!--
+        Muestra en tiempo real el modulo activo y su configuracion
+      -->
+      <div class="info-cifrado">
+        <span class="distintivo">
+          <span class="punto"></span>
+          <span id="cipher-badge">César · Desplazamiento: 3</span>
+        </span>
+      </div>
+
+    </div><!-- /app-card -->
+  </main>
+
+  <!-- ── Pie de pagina ──────────────────────────────────────────────────────── -->
+  <footer class="pie">
+    Cifrado Elias · César &amp; Atbash · Basado en ASCII
+  </footer>
+
+  <!-- ── Aviso ──────────────────────────────────────────────────────── -->
+  <!--
+    Notificacion temporal controlada desde app.js con showToast().
+  -->
+  <div class="aviso" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/caesar.js"></script>
+  <script src="js/atbash.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
