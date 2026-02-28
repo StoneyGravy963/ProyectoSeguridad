@@ -50,6 +50,15 @@
         >
            Atbash
         </button>
+        <button
+          class="boton-tab"
+          data-cipher="bruteforce"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-settings"
+        >
+          Fuerza Bruta
+        </button>
       </div>
 
       <!-- ── Panel ─────────────────────────────────────────── -->
@@ -109,7 +118,7 @@
       </div><!-- /configuracion -->
 
       <!-- ── areas de texto y botones de accion ─────────────────────────────── -->
-      <div class="seccion-io">
+      <div class="seccion-io" id="seccion-io">
 
         <!-- Texto de entrada -->
         <div class="panel">
@@ -172,6 +181,37 @@
 
       </div><!-- /seccion-io -->
 
+      <!-- ── Fuerza Bruta ────────────────────────────────────────────────────── -->
+      <div class="seccion-fuerza hidden" id="seccion-fuerza">
+
+        <!-- Entrada del texto cifrado -->
+        <div class="panel">
+          <div class="panel-titulo">
+            <span class="etiqueta">Texto cifrado</span>
+            <span class="contador" id="bf-conteo"></span>
+          </div>
+          <textarea
+            id="bf-input"
+            placeholder="Pega aquí el texto cifrado que quieres analizar..."
+          ></textarea>
+          <div class="panel-pie">
+            <button class="boton boton--primario" id="bf-analizar">
+              Analizar todo
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de resultados (oculta hasta que se analiza) -->
+        <div class="panel hidden" id="seccion-resultados-bf">
+          <div class="panel-titulo">
+            <span class="etiqueta">Resultados</span>
+            <span class="contador" id="bf-total"></span>
+          </div>
+          <div class="lista-resultados" id="bf-lista"></div>
+        </div>
+
+      </div><!-- /seccion-fuerza -->
+
       <!-- ── Tabla ASCII ──────────────────────────────────────── -->
       <div class="seccion-ascii hidden" id="ascii-section">
         <div class="titulo-ascii">
@@ -221,6 +261,7 @@
 
   <script src="js/caesar.js"></script>
   <script src="js/atbash.js"></script>
+  <script src="js/bruteforce.js"></script>
   <script src="js/app.js"></script>
 
 </body>

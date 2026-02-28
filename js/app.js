@@ -31,6 +31,13 @@ const elements = {
   asciiSection:   document.getElementById("ascii-section"),
   asciiTableBody: document.getElementById("ascii-table-body"),
   asciiMeta:      document.getElementById("ascii-meta"),
+  seccionIo:           document.getElementById("seccion-io"),
+  seccionFuerza:       document.getElementById("seccion-fuerza"),
+  bfInput:             document.getElementById("bf-input"),
+  bfAnalizar:          document.getElementById("bf-analizar"),
+  bfLista:             document.getElementById("bf-lista"),
+  bfTotal:             document.getElementById("bf-total"),
+  seccionResultadosBf: document.getElementById("seccion-resultados-bf"),
 };
 
 // ─── Inicializacion ───────────────────────────────────────────────────────────
@@ -72,6 +79,9 @@ function registerEvents() {
 
   // Actualizar badge cuando cambia el shift
   elements.shiftInput.addEventListener("input", updateBadge);
+
+  // Boton de analisis por fuerza bruta
+  elements.bfAnalizar.addEventListener("click", handleBruteforce);
 }
 
 // ─── Manejadores de eventos ───────────────────────────────────────────────────
@@ -83,17 +93,25 @@ function registerEvents() {
 function handleTabChange(cipher) {
   state.cipher = cipher;
 
-  // Actualiza clases activas de las pestañas
   elements.tabs.forEach((tab) => {
     tab.classList.toggle("active", tab.dataset.cipher === cipher);
   });
 
-  // Muestra u oculta el campo de desplazamiento
-  elements.shiftGroup.classList.toggle("hidden", cipher === "atbash");
+  const esFuerza = cipher === "bruteforce";
 
-  updateBadge();
-  if (elements.outputText.value && state.lastAction) {
-    handleProcess(state.lastAction);
+  // Alternar entre la seccion normal y la de fuerza bruta
+  elements.seccionIo.classList.toggle("hidden", esFuerza);
+  elements.seccionFuerza.classList.toggle("hidden", !esFuerza);
+  elements.asciiSection.classList.add("hidden");
+
+  // Desplazamiento solo aplica a Cesar
+  elements.shiftGroup.classList.toggle("hidden", cipher !== "caesar");
+
+  if (!esFuerza) {
+    updateBadge();
+    if (elements.outputText.value && state.lastAction) {
+      handleProcess(state.lastAction);
+    }
   }
 }
 
@@ -268,6 +286,81 @@ function showToast(message, type = "info") {
 function flashButton(btn) {
   btn.classList.add("boton--activo");
   btn.addEventListener("animationend", () => btn.classList.remove("boton--activo"), { once: true });
+}
+
+// ─── Fuerza Bruta ─────────────────────────────────────────────────────────────
+
+/**
+ * Valida la entrada y lanza el analisis por fuerza bruta.
+ * Muestra un toast con el total de combinaciones probadas.
+ */
+// [24]
+function handleBruteforce() {
+  const text    = elements.bfInput.value;
+  const charset = elements.charsetInput.value;
+
+  if (!text.trim()) {
+    showToast("Pega un texto cifrado antes de analizar.", "error");
+    elements.bfInput.focus();
+    return;
+  }
+  if (charset.length < 2) {
+    showToast("El conjunto de caracteres debe tener al menos 2 caracteres.", "error");
+    return;
+  }
+
+  const results = bruteforceAnalyze(text, charset);
+  buildBruteforceResults(results);
+  showToast(`${results.length} combinaciones analizadas.`, "success");
+}
+
+/**
+ * Genera la lista visual con todos los resultados del analisis.
+ * Cada fila muestra la etiqueta del cifrado, el texto descifrado y un boton
+ * para copiar ese resultado especifico al portapapeles.
+ *
+ * @param {{ cipher: string, shift: number|null, resultado: string }[]} results
+ */
+// [25]
+function buildBruteforceResults(results) {
+  const lista = elements.bfLista;
+  lista.innerHTML = "";
+
+  results.forEach(({ cipher, shift, resultado }) => {
+    const esAtbash   = cipher === "Atbash";
+    const labelClass = esAtbash ? "resultado-etiqueta--atbash" : "resultado-etiqueta--cesar";
+    const labelText  = esAtbash ? "Atbash" : `+${shift}`;
+
+    const item = document.createElement("div");
+    item.className = "resultado-item";
+
+    const etiqueta = document.createElement("span");
+    etiqueta.className = `resultado-etiqueta ${labelClass}`;
+    etiqueta.textContent = labelText;
+
+    const texto = document.createElement("span");
+    texto.className = "resultado-texto";
+    texto.title = resultado;      // texto completo al pasar el cursor
+    texto.textContent = resultado;
+
+    const copiarBtn = document.createElement("button");
+    copiarBtn.className = "boton boton--chico boton--simple";
+    copiarBtn.title = "Copiar";
+    copiarBtn.textContent = "⧉";
+    copiarBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(resultado).then(() => {
+        showToast(`Copiado (${labelText}).`, "success");
+        flashButton(copiarBtn);
+      });
+    });
+
+    item.append(etiqueta, texto, copiarBtn);
+    lista.appendChild(item);
+  });
+
+  elements.bfTotal.textContent =
+    `${results.length} combinación${results.length !== 1 ? "es" : ""}`;
+  elements.seccionResultadosBf.classList.remove("hidden");
 }
 
 // ─── Tabla de conversion ASCII ────────────────────────────────────────────────

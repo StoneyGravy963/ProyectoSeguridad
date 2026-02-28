@@ -642,6 +642,74 @@ textarea[readonly] {
   letter-spacing: 0.3px;
 }
 
+/* ── Fuerza Bruta ─────────────────────────────────────────────────────────── */
+.seccion-fuerza {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Lista de todos los resultados */
+.lista-resultados {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+/* Fila de un resultado individual */
+.resultado-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid rgba(42, 58, 85, 0.4);
+  transition: background var(--transicion);
+}
+
+.resultado-item:last-child {
+  border-bottom: none;
+}
+
+.resultado-item:hover {
+  background: var(--fondo-opaco);
+}
+
+/* Etiqueta que indica el tipo de cifrado y el shift */
+.resultado-etiqueta {
+  flex-shrink: 0;
+  width: 72px;
+  text-align: center;
+  font-family: var(--fuente-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.18rem 0.4rem;
+  border-radius: var(--radio-chico);
+  letter-spacing: 0.3px;
+}
+
+.resultado-etiqueta--atbash {
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--color-cian);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+
+.resultado-etiqueta--cesar {
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--color-primario);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+
+/* Texto descifrado (truncado, full via title/clipboard) */
+.resultado-texto {
+  flex: 1;
+  font-family: var(--fuente-mono);
+  font-size: 0.85rem;
+  color: var(--texto-normal);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 540px) {
   .app-card {

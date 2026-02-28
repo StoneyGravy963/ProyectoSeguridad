@@ -16,6 +16,7 @@ ProyectoSeguridad1/
 └── js/
     ├── caesar.js     — Lógica del Cifrado César
     ├── atbash.js     — Lógica del Cifrado Atbash
+    ├── bruteforce.js — Módulo de análisis por fuerza bruta
     └── app.js        — Controlador de la interfaz de usuario
 ```
 
@@ -46,7 +47,7 @@ ProyectoSeguridad1/
 |---|---------|-------------|
 | [8] | `init()` | Punto de entrada de la app: carga el charset por defecto en el campo de texto y registra todos los eventos. |
 | [9] | `registerEvents()` | Asocia cada elemento del DOM (botones, inputs, pestañas) con su función manejadora correspondiente. |
-| [10] | `handleTabChange(cipher)` | Cambia el cifrado activo entre César y Atbash, oculta o muestra el campo de desplazamiento y actualiza el indicador inferior. |
+| [10] | `handleTabChange(cipher)` | Cambia el módulo activo (César, Atbash o Fuerza Bruta), muestra u oculta las secciones correspondientes y actualiza el campo de desplazamiento. |
 | [11] | `handleProcess(action)` | Valida los inputs y ejecuta el cifrado o descifrado según la acción (`"encrypt"` o `"decrypt"`); después genera la tabla ASCII. |
 | [12] | `handleSwap()` | Intercambia el contenido del área de entrada con el de salida para encadenar operaciones fácilmente. |
 | [13] | `handleResetCharset()` | Restaura el campo del charset al valor por defecto (ASCII imprimible completo). |
@@ -59,6 +60,19 @@ ProyectoSeguridad1/
 | [20] | `flashButton(btn)` | Añade una animación de pulso a un botón para dar retroalimentación visual al usuario tras una acción. |
 | [21] | `buildAsciiTable(inputText, outputText, charset)` | Genera la tabla de conversión ASCII fila por fila: muestra el carácter original, su código decimal, el carácter resultado y su código decimal. Limita la visualización a 80 filas. |
 | [22] | `displayChar(char)` | Convierte caracteres invisibles (espacio, salto de línea, tabulación) en etiquetas visuales (`SPC`, `\n`, `\t`) para que las celdas de la tabla nunca queden vacías. |
+
+### `bruteforce.js`
+
+| # | Función | Descripción |
+|---|---------|-------------|
+| [23] | `bruteforceAnalyze(text, charset)` | Prueba todas las combinaciones posibles: Atbash (1 intento) + César con cada desplazamiento de 1 hasta `charset.length - 1`. Devuelve un array con todos los textos descifrados. |
+
+### Fuerza bruta en `app.js`
+
+| # | Función | Descripción |
+|---|---------|-------------|
+| [24] | `handleBruteforce()` | Valida que haya texto y charset, llama a `bruteforceAnalyze` y muestra los resultados con un toast de confirmación. |
+| [25] | `buildBruteforceResults(results)` | Construye la lista visual de resultados: una fila por combinación con su etiqueta (`Atbash` o `+N`), el texto descifrado y un botón para copiar ese resultado concreto. |
 
 ---
 
@@ -74,3 +88,9 @@ ProyectoSeguridad1/
 | `#ascii-table-body` | `<tbody>` donde se insertan dinámicamente las filas de la tabla. |
 | `#cipher-badge` | Indicador de texto en tiempo real con el cifrado y configuración activos. |
 | `#toast` | Contenedor del aviso temporal (notificación flotante). |
+| `#seccion-fuerza` | Sección completa de fuerza bruta; se muestra al activar esa pestaña. |
+| `#bf-input` | Textarea donde se pega el texto cifrado a analizar. |
+| `#bf-analizar` | Botón que dispara el análisis de todas las combinaciones. |
+| `#seccion-resultados-bf` | Panel de resultados; oculto hasta que se hace el primer análisis. |
+| `#bf-lista` | Contenedor donde se insertan dinámicamente las filas de resultados. |
+| `#bf-total` | Contador que muestra cuántas combinaciones se probaron. |
