@@ -316,23 +316,46 @@ function handleBruteforce() {
 
 /**
  * Genera la lista visual con todos los resultados del analisis.
- * Cada fila muestra la etiqueta del cifrado, el texto descifrado y un boton
- * para copiar ese resultado especifico al portapapeles.
+ * Muestra primero los "Mejores candidatos" (score > 0, ordenados por puntaje)
+ * y luego todas las combinaciones en orden original.
  *
- * @param {{ cipher: string, shift: number|null, resultado: string }[]} results
+ * @param {{ cipher: string, shift: number|null, resultado: string, score: number }[]} results
  */
 // [25]
 function buildBruteforceResults(results) {
   const lista = elements.bfLista;
   lista.innerHTML = "";
 
-  results.forEach(({ cipher, shift, resultado }) => {
+  // Candidatos: resultados con al menos una palabra del español detectada
+  const candidatos = results
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  // Crea un encabezado separador de seccion
+  function crearSeparador(titulo, conteo) {
+    const sep = document.createElement("div");
+    sep.className = "separador-resultados";
+    const t = document.createElement("span");
+    t.className = "etiqueta";
+    t.textContent = titulo;
+    const c = document.createElement("span");
+    c.className = "contador";
+    c.textContent = conteo;
+    sep.append(t, c);
+    return sep;
+  }
+
+  // Crea una fila de resultado con etiqueta, texto, puntaje opcional y boton copiar
+  function crearFila(r, resaltado) {
+    const { cipher, shift, resultado, score } = r;
     const esAtbash   = cipher === "Atbash";
     const labelClass = esAtbash ? "resultado-etiqueta--atbash" : "resultado-etiqueta--cesar";
     const labelText  = esAtbash ? "Atbash" : `+${shift}`;
 
     const item = document.createElement("div");
-    item.className = "resultado-item";
+    item.className = resaltado
+      ? "resultado-item resultado-item--probable"
+      : "resultado-item";
 
     const etiqueta = document.createElement("span");
     etiqueta.className = `resultado-etiqueta ${labelClass}`;
@@ -340,7 +363,7 @@ function buildBruteforceResults(results) {
 
     const texto = document.createElement("span");
     texto.className = "resultado-texto";
-    texto.title = resultado;      // texto completo al pasar el cursor
+    texto.title = resultado;
     texto.textContent = resultado;
 
     const copiarBtn = document.createElement("button");
@@ -354,12 +377,36 @@ function buildBruteforceResults(results) {
       });
     });
 
-    item.append(etiqueta, texto, copiarBtn);
-    lista.appendChild(item);
-  });
+    if (resaltado && score > 0) {
+      const puntaje = document.createElement("span");
+      puntaje.className = "resultado-puntaje";
+      puntaje.title = `${score} palabra${score !== 1 ? "s" : ""} del español detectada${score !== 1 ? "s" : ""}`;
+      puntaje.textContent = `★ ${score}`;
+      item.append(etiqueta, texto, puntaje, copiarBtn);
+    } else {
+      item.append(etiqueta, texto, copiarBtn);
+    }
+    return item;
+  }
+
+  // Seccion superior: mejores candidatos (solo si hay alguno)
+  if (candidatos.length > 0) {
+    lista.appendChild(crearSeparador(
+      "Mejores candidatos",
+      `${candidatos.length} encontrado${candidatos.length !== 1 ? "s" : ""}`
+    ));
+    candidatos.forEach(r => lista.appendChild(crearFila(r, true)));
+  }
+
+  // Seccion inferior: todas las combinaciones en orden original
+  lista.appendChild(crearSeparador("Todas las combinaciones", `${results.length} total`));
+  results.forEach(r => lista.appendChild(crearFila(r, false)));
 
   elements.bfTotal.textContent =
-    `${results.length} combinación${results.length !== 1 ? "es" : ""}`;
+    `${results.length} combinación${results.length !== 1 ? "es" : ""}` +
+    (candidatos.length > 0
+      ? ` · ${candidatos.length} candidato${candidatos.length !== 1 ? "s" : ""}`
+      : "");
   elements.seccionResultadosBf.classList.remove("hidden");
 }
 

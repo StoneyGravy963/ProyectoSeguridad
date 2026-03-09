@@ -63,16 +63,18 @@ ProyectoSeguridad1/
 
 ### `bruteforce.js`
 
-| # | Función | Descripción |
-|---|---------|-------------|
-| [23] | `bruteforceAnalyze(text, charset)` | Prueba todas las combinaciones posibles: Atbash (1 intento) + César con cada desplazamiento de 1 hasta `charset.length - 1`. Devuelve un array con todos los textos descifrados. |
+| # | Función / Constante | Descripción |
+|---|---------------------|-------------|
+| [23] | `bruteforceAnalyze(text, charset)` | Prueba todas las combinaciones posibles (Atbash + todos los shifts de César) y añade un `score` a cada resultado usando `scoreText`. |
+| [26] | `PALABRAS_ES` | Lista de ~60 palabras frecuentes del español usadas para calcular el puntaje de cada resultado. |
+| [27] | `scoreText(text)` | Cuenta cuántas palabras de `PALABRAS_ES` aparecen en el texto; devuelve un número: a mayor valor, más probable que el texto sea legible en español. |
 
 ### Fuerza bruta en `app.js`
 
 | # | Función | Descripción |
 |---|---------|-------------|
 | [24] | `handleBruteforce()` | Valida que haya texto y charset, llama a `bruteforceAnalyze` y muestra los resultados con un toast de confirmación. |
-| [25] | `buildBruteforceResults(results)` | Construye la lista visual de resultados: una fila por combinación con su etiqueta (`Atbash` o `+N`), el texto descifrado y un botón para copiar ese resultado concreto. |
+| [25] | `buildBruteforceResults(results)` | Construye la lista visual en dos secciones: "Mejores candidatos" (score > 0, en verde con badge `★ N`) al tope, y "Todas las combinaciones" debajo en orden original. |
 
 ---
 

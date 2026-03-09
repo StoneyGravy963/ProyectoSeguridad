@@ -710,6 +710,45 @@ textarea[readonly] {
   white-space: nowrap;
 }
 
+/* Fila resaltada como mejor candidato */
+.resultado-item--probable {
+  background: rgba(52, 211, 153, 0.06);
+  border-left: 3px solid var(--color-verde);
+}
+
+.resultado-item--probable:hover {
+  background: rgba(52, 211, 153, 0.12);
+}
+
+/* Badge de puntaje (★ N) */
+.resultado-puntaje {
+  flex-shrink: 0;
+  font-family: var(--fuente-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-verde);
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: var(--radio-chico);
+  padding: 0.18rem 0.45rem;
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* Separador entre secciones de resultados */
+.separador-resultados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.9rem;
+  background: var(--fondo-tarjeta);
+  border-bottom: 1px solid var(--borde);
+  border-top: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 540px) {
   .app-card {
